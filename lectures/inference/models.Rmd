@@ -37,6 +37,27 @@ This is a contrived example, but it will help us understand how we think about m
 
 If we are betting on black on roulette, we can let $Y_i$ be either -1 or 1. Now what is $\theta$ and what is the distribution of our error? What is the standard deviation of the errors? Hint: the expected value of the error must be 0.
 
+
+Answer: Our parameter is $\theta = -1/19$ and our errors are $1 - \theta$ with probability $9/19$ and $-1 - \theta$ with probability $10/19$. 
+
+Double check that the expected value is 0:
+```{r}
+20/19 * 9/19 - 18/19*10/19
+```
+
+The standard deviation we know is $2 \sqrt{ 9/19 \times 10/19}$. We can double check with a Monte Carlo
+
+```{r}
+B <- 10^5
+theta = -1/19
+Y <- sample( c(-1,1), B, replace=TRUE, prob=c(10/19, 9/19))
+error <- Y - theta
+prop.table(table(error))
+sqrt(mean(error^2))
+2*sqrt(10/19*9/19)
+```
+
+
 #### Assessment 2: http://goo.gl/forms/XLQQh69MUO
 
 Let's consider the example of a demographer trying to estimate the average height of a population. We use the heights stored in R:
@@ -55,6 +76,17 @@ Y <- sample(y, 25, replace = TRUE)
 
 What are $\theta$, $N$, and $\varepsilon_1$ ?
 
+
+```{r}
+## N is 
+length(Y)
+## theta is 
+theta <- mean(y)
+## the firest error is 
+error_1 <- Y[1] - theta
+```
+
+
 #### Assessment 3: http://goo.gl/forms/CfamwJBctA
 
 Note that in this example each individual in the population has an _error_. It may sound a bit strange but, if you are 1 inch taller than the average height, we call it an "error" of 1 inch. Compute all the errors for the population and explore the distribution. What is the standard deviation of this distribution?
@@ -66,6 +98,17 @@ B) Approximately normal with $\sigma$ of about 3 inches. Tails are slightly larg
 C) These are not averages or sums so it is not approximately normal.
 
 D) Approximately normal with $\sigma$ of about 9 inches. Tails are slightly larger.
+
+
+```{r}
+error <- y - mean(y)
+hist(error)
+##the standard error is:
+sigma <- sqrt( mean( (error)^2 ))
+qqnorm(error/sigma)
+abline(0,1)
+```
+
 
 
 ## Modeling Poll Results
@@ -108,11 +151,25 @@ with $N=22$.
 Using the CLT theory we have learned, how do we model $\varepsilon$, what is the expected value and standard deviation of 
 $\varepsilon$? 
 
+Answer: According to CLT 
+
+$$ \varepsilon \sim \mbox{Normal}\left( 0, \frac{\sqrt{\theta (1-\theta)}}{\sqrt{100}} \right)$$
+
 
 #### Assessment 5: http://goo.gl/forms/0sYp0gFnxZ
 
 We already revealed that $\theta = 0.534$. Use this information and 
 data exploration to check if the model assumptions make sense. 
+
+```{r}
+theta <- 0.534
+Y <- tab$estimate/100 
+error <- Y - theta
+hist(error)
+se <- sqrt(theta*(1-theta))/sqrt(100)
+qqnorm(error/se)
+abline(0,1)
+```
 
 
 
