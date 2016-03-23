@@ -108,13 +108,33 @@ b <- replicate(10000, {a <- sample_n(father.son, 100)
                     cor(a$fheight, a$sheight)-FS.Cor})
 sd(b)
 
+#Class version
+B <- 1000
+N <- 100
+r <- cor(father.son$fheight, father.son$sheight)
+Rs <- replicate(B, sample_n( father.son, N, replace=TRUE) %>% 
+            summarize(r = cor(fheight, sheight)) %>% .$r
+          )
 
+dat <- data.frame(R = Rs - r)
+ggplot(dat, aes(Rs)) + geom_histogram()
+ggplot(dat) + stat_qq(aes(sample=scale(R))) + 
+                        geom_abline(intercept = 0, slope = 1)
+dat %>% summarize(sd(R))
 ```
 
 
 ###Assessment
 
 Re-do the assessment when the sample size is 250 instead of 25?
+```{r}
+FS.Cor <- cor(father.son$fheight, father.son$sheight)
+c <- replicate(10000, {a <- sample_n(father.son, 250)
+                    cor(a$fheight, a$sheight)-FS.Cor})
+sd(c)
+
+```
+
 
 
 ## Stratification
@@ -253,7 +273,7 @@ $$
 The standard deviation of the _conditional_ distribution described above is:
 
 $$
-\mbox{Var}(Y \mid X=x ) \sqrt{1-\rho^2} \sigma_y
+\mbox{Var}(Y \mid X=x )= {1-\rho^2} \sigma_y
 $$
 
 This is where statements like $X$ explains $\rho^2 \times 100$ % of the variation in $Y$: the variance of $Y$ is $\sigma^2$ and, once we condition, it goes down to $(1-\rho^2) \sigma^2_Y$ . It is important to remember that the "variance explained" statement only makes sense when the data is approximated by a bivariate normal distribution.
